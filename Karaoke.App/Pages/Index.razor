@@ -1,0 +1,86 @@
+﻿@page "/"
+@using Karaoke.App.Repositories
+@using Karaoke.App.Models
+@inject SongRepository _songRepository
+
+<PageTitle>Karaoke - Song List</PageTitle>
+
+<h1>Song List</h1>
+<input type="text" placeholder="Search here..." class="form-control" @onchange="@FilterTable" />
+<br/>
+<table class="table table-bordered table-striped table-active">
+    <tr>
+        <th>Title</th>
+        <th>Artist</th>
+        <th> </th>
+    </tr>
+    @foreach (var song in _filteredSongs)
+    {
+        <tr>
+            <td>@song.Title</td>
+            <td>@song.Artist</td>
+            <td>
+                <a href="@song.Url" target="_blank" class="btn btn-primary">Open in new tab</a>
+            </td>
+        </tr>
+    }
+</table>
+
+@code {
+    private IEnumerable<Song> _songs = new List<Song>();
+    private IEnumerable<Song> _filteredSongs = new List<Song>();
+    private List<Song> _recentlyPlayed = new List<Song>();
+
+    private string _query = string.Empty;
+    
+    protected override async Task OnInitializedAsync()
+    {
+        _songs = (await _songRepository.GetAll())
+            .OrderBy(x => x.Artist)
+            .ThenBy(x => x.Title)
+            .ToList();
+
+        foreach (var song in _songs)
+        {
+            song.Title = song.Title
+                .Replace("(CC)", "")
+                .Replace("[Karaoke]", "")
+                .Replace("(Remastered Video)", "")
+                .Replace("(Karaoke/Instrumental)", "")
+                .Replace("[Instrumental Lyrics]", "")
+                .Replace("[Karaoke Instrumental]", "")
+                .Replace("[Karaoke Instrumental Lyrics]", "")
+                .Trim();
+        }
+        
+        _filteredSongs = _songs;
+    }
+
+    public void Play(Song song)
+    {
+        _recentlyPlayed.Add(song);
+    }
+
+    public async Task PlayRandom()
+    {
+        var songs = (await _songRepository.GetAll()).Except(_recentlyPlayed);
+        if (songs.Any())
+        {
+                
+        }
+       // Play();
+    }
+
+    private void FilterTable(ChangeEventArgs args)
+    {
+        _query = (string)args.Value;
+        
+        _filteredSongs = _songs
+            .Where(x =>
+                x.Artist.ToLowerInvariant().Contains(_query.ToLowerInvariant())
+                || x.Title.ToLowerInvariant().Contains(_query.ToLowerInvariant()))
+            .OrderBy(x => x.Artist)
+            .ThenBy(x => x.Title)
+            .ToList();;
+    }
+}

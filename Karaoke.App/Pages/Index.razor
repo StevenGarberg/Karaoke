@@ -42,15 +42,7 @@
 
         foreach (var song in _songs)
         {
-            song.Title = song.Title
-                .Replace("(CC)", "")
-                .Replace("[Karaoke]", "")
-                .Replace("(Remastered Video)", "")
-                .Replace("(Karaoke/Instrumental)", "")
-                .Replace("[Instrumental Lyrics]", "")
-                .Replace("[Karaoke Instrumental]", "")
-                .Replace("[Karaoke Instrumental Lyrics]", "")
-                .Trim();
+            SanitizeSongTitle(song);
         }
         
         _filteredSongs = _songs;
@@ -82,5 +74,40 @@
             .OrderBy(x => x.Artist)
             .ThenBy(x => x.Title)
             .ToList();;
+    }
+
+    private void SanitizeSongTitle(Song song)
+    {
+        song.Title = song.Title
+            .Replace(song.Artist, "");
+            
+        var titleSections = song.Title.Split(" - ");
+        if (titleSections.Length > 1)
+            song.Title = titleSections[1];
+            
+        titleSections = song.Title.Split(" • ");
+        if (titleSections.Length > 1)
+            song.Title = titleSections[1];
+            
+        song.Title = song.Title
+            .Replace("(Remastered Video)", "")
+            .Replace("(Karaoke/Instrumental)", "")
+            .Replace("[Instrumental Lyrics]", "")
+            .Replace("[Karaoke Instrumental]", "")
+            .Replace("[Karaoke Instrumental]", "")
+            .Replace("[Karaoke Instrumental Lyrics]", "")
+            .Replace("🎤", "")
+            .Replace("(CC)", "")
+            .Replace("[Karaoke]", "")
+            .Replace("[karaoke]", "")
+            .Replace("(Karaoke)", "")
+            .Replace("(karaoke)", "")
+            .Replace("(Instrumental)", "")
+            .Replace("(Remastered)", "")
+            .Replace("KaraFun", "")
+            .Replace("Karaoke Version", "")
+            .Replace("|", "")
+            .Replace("\"", "")
+            .Trim();
     }
 }

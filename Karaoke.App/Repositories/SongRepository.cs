@@ -31,7 +31,7 @@ public class SongRepository
     {
         if (!_songs.Any())
         {
-            var csv = await _httpClient.GetStringAsync("./songs.csv");
+            var csv = await _httpClient.GetStringAsync("songs.csv");
             var lines = csv.Split("\r\n");
             
             var id = 0;

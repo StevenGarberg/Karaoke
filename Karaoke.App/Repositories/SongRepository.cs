@@ -1,4 +1,5 @@
-﻿using Karaoke.App.Models;
+﻿using System.Net.Http.Json;
+using Karaoke.App.Models;
 
 namespace Karaoke.App.Repositories;
 
@@ -26,8 +27,49 @@ public class SongRepository
         });
         */
     }
+
+    public IEnumerable<Song> Import(string csv)
+    {
+        var lines = csv.Split("\r\n");
+        if (!lines.Any()) lines = csv.Split("\n");
+        if (!lines.Any()) lines = csv.Split(Environment.NewLine);
+            
+        var id = 0;
+        var currentArtist = string.Empty;
+        foreach (var line in lines)
+        {
+            var columns = line.Split(",");
+            if (!string.IsNullOrWhiteSpace(columns[0]))
+            {
+                currentArtist = columns[0].Trim().Replace(":", "");
+            }
+            else if (!string.IsNullOrWhiteSpace(columns[1]) && !string.IsNullOrWhiteSpace(columns[2]))
+            {
+                _songs.Add(new Song
+                {
+                    Id = (++id).ToString(),
+                    Title = columns[1].Trim(),
+                    Artist = currentArtist,
+                    Url = columns[2].Trim()
+                });
+            }
+            else continue;
+        }
+            
+        return _songs;
+    }
+
+    public async Task<IEnumerable<Song>> GetAll()
+    {
+        if (!_songs.Any())
+        {
+            _songs  = await _httpClient.GetFromJsonAsync<List<Song>>("songs.json");
+        }
+            
+        return _songs;
+    }
     
-    public async Task <IEnumerable<Song>> GetAll()
+    public async Task<IEnumerable<Song>> GetAllOld()
     {
         if (!_songs.Any())
         {

@@ -14,7 +14,7 @@ a, .btn-link {
 
 .btn, .btn-primary, .table>:not(caption)>*>* {
     color: #fff !important;
-    background: #1b6ec2 !important;
+    background:linear-gradient(180deg, rgb(55 78 122) 0%, #730c8d 70%) !important;
     border-color: #1861ac !important;
 }
 

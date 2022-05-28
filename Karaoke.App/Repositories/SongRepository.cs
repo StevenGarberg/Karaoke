@@ -28,7 +28,7 @@ public class SongRepository
         */
     }
 
-    public IEnumerable<Song> Import(string csv)
+    public List<Song> Import(string csv)
     {
         var lines = csv.Split("\r\n");
         if (!lines.Any()) lines = csv.Split("\n");
@@ -69,7 +69,7 @@ public class SongRepository
         return _songs;
     }
     
-    public async Task<IEnumerable<Song>> GetAllOld()
+    public async Task<List<Song>> GetAllOld()
     {
         if (!_songs.Any())
         {
@@ -104,10 +104,10 @@ public class SongRepository
         return _songs;
     }
 
-    public async Task<IEnumerable<Song>> GetAllByArtist(string artist)
+    public async Task<List<Song>> GetAllByArtist(string artist)
     {
         return (await GetAll())
-            .Where(s => string.Equals(s.Artist, artist, StringComparison.OrdinalIgnoreCase));
+            .Where(s => string.Equals(s.Artist, artist, StringComparison.OrdinalIgnoreCase)).ToList();
     }
 
     public async Task<Song> GetByTitle(string title)

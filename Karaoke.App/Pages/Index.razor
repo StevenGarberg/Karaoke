@@ -2,10 +2,11 @@
 @using Karaoke.App.Repositories
 @using Karaoke.App.Models
 @inject SongRepository _songRepository
+@inject IJSRuntime jsRuntime
 
 <PageTitle>Karaoke - Song List</PageTitle>
 
-<h1>Song List</h1>
+<h1>Song List <span><button class="btn btn-primary btn-sm" @onclick="RandomSong">Random Song</button></span></h1>
 <input type="text" placeholder="Search here..." class="form-control" @onchange="@FilterTable" />
 <br/>
 <table class="table table-bordered table-striped table-active">
@@ -27,8 +28,8 @@
 </table>
 
 @code {
-    private IEnumerable<Song> _songs = new List<Song>();
-    private IEnumerable<Song> _filteredSongs = new List<Song>();
+    private List<Song> _songs = new List<Song>();
+    private List<Song> _filteredSongs = new List<Song>();
     private List<Song> _recentlyPlayed = new List<Song>();
 
     private string _query = string.Empty;
@@ -109,5 +110,13 @@
             .Replace("|", "")
             .Replace("\"", "")
             .Trim();
+    }
+
+    private async Task RandomSong()
+    {
+        var songCount = _filteredSongs.Count;
+        var random = new Random();
+        var randomSong = _filteredSongs[random.Next(0, songCount)];
+        await jsRuntime.InvokeAsync<object>("open", randomSong.Url, "_blank");
     }
 }
